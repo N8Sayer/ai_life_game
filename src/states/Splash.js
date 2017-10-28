@@ -19,6 +19,9 @@ export default class extends Phaser.State {
     this.load.image('background', 'assets/images/background.png')
     this.load.image('character', 'assets/images/character.png')
     this.load.image('shrub', 'assets/images/shrub.png')
+    this.load.image('hpmana_bar', 'assets/images/gui/hp-mana bar.png')
+
+    this.load.spritesheet('torch', 'assets/images/torch.png', 32, 49, 6);
   }
 
   create () {

@@ -2,16 +2,23 @@
 import Phaser from 'phaser'
 import Player from '../entites/Player';
 import Shrub from '../items/Shrub';
+import Torch from '../items/Torch';
 
 var player = new Player();
 var cursors;
-var healthGUIText;
+var healthBar;
 var backgroundSprite;
 
 export default class extends Phaser.State {
   init () {}
   preload () {}
 
+  /*
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  */
   create () {
     //Creating world
     backgroundSprite = this.game.add.sprite(0, 0, 'background');
@@ -21,19 +28,30 @@ export default class extends Phaser.State {
     var shrub = new Shrub();
     shrub.sprite = this.game.add.sprite(100, 100, 'shrub');
 
+    var torch = new Torch();
+    torch.sprite = this.game.add.sprite(300, 200, 'torch');
+    torch.sprite.animations.add('animate');
+    torch.sprite.animations.play('animate', 10, true);
+
     //Creating player
     player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'character');
+    player.sprite.scale.setTo(2, 2);
     this.game.physics.p2.enable(player.sprite);
     player.sprite.body.fixedRotation = true;
     cursors = this.game.input.keyboard.createCursorKeys();
     this.game.camera.follow(player.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
 
+    //console.log(this.game.physics);
+
+
+    //this.game.physics.p2.overlap(player.sprite, [], function() {}, null, this);
+
+
     //Creating GUI
-    healthGUIText = game.add.text(
-      this.game.camera.view.x - (this.game.camera.view.x - 10),
-      this.game.camera.view.y - (this.game.camera.view.y - 10),
-      "Health: " + player.health, {font: '10pt'});
+    this.createGUI();
+
+    console.log(healthBar);
 
     /*var emitter = this.game.add.emitter(this.world.centerX, 500, 200);
     emitter.makeParticles('spark');
@@ -43,15 +61,30 @@ export default class extends Phaser.State {
     emitter.start(false, 500, 1);*/
   }
 
+  createGUI() {
+    healthBar = this.game.add.sprite(
+      this.game.camera.view.x - (this.game.camera.view.x - 10),
+      this.game.camera.view.y - (this.game.camera.view.y - 10),
+      'hpmana_bar');
+    healthBar.scale.setTo(4, 4);
+
+  }
+
+
+  /*
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  */
   update() {
     this.updateGUI();
     this.updatePlayer();
   }
 
   updateGUI() {
-    healthGUIText.x = this.game.camera.view.x + 10;
-    healthGUIText.y = this.game.camera.view.y + 10;
-    healthGUIText.setText("Health: " + player.health);
+    healthBar.x = this.game.camera.view.x + 10;
+    healthBar.y = this.game.camera.view.y + 10;
   }
 
   updatePlayer() {
