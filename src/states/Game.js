@@ -11,6 +11,7 @@ var healthBar;
 var manaBar;
 var backgroundSprite;
 var items;
+var trees;
 
 export default class extends Phaser.State {
   init () {}
@@ -18,7 +19,7 @@ export default class extends Phaser.State {
 
   /*
   #####################################################################################################################
-  #####################################################################################################################
+  ################################################ CREATION METHODS BELOW #############################################
   #####################################################################################################################
   #####################################################################################################################
   */
@@ -31,6 +32,7 @@ export default class extends Phaser.State {
 
     var playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
     var itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
+    var treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
     //  This part is vital if you want the objects with their own collision groups to still collide with the world bounds
     //  (which we do) - what this does is adjust the bounds to use its own collision group.
@@ -40,12 +42,18 @@ export default class extends Phaser.State {
     items.enableBody = true;
     items.physicsBodyType = Phaser.Physics.P2JS;
 
-    //var shrub = new Shrub(this, 100, 50);
+    /*
+    trees = this.game.add.group();
+    trees.enableBody = true;
+    trees.physicsBodyType = Phaser.Physics.P2JS;
 
     var tree = new Tree(this, 400, 240);
+    */
+
 
     for(let i = 0; i < 10; i++) {
       var torch = items.create(300, 200 + (i*40), 'torch');
+      torch.body.dynamic = false;
       torch.body.setRectangle(20, 20);
       torch.body.setCollisionGroup(itemCollisionGroup);
       torch.body.collides([itemCollisionGroup, playerCollisionGroup]);
@@ -53,29 +61,8 @@ export default class extends Phaser.State {
     }
 
 
-
-    //Creating player
-    player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'character');
-    player.sprite.scale.setTo(1.2, 1.2);
-    this.game.physics.p2.enable(player.sprite, false);
-    player.sprite.body.fixedRotation = true;
-    player.sprite.body.setCollisionGroup(playerCollisionGroup);
-    player.sprite.body.collides(itemCollisionGroup, function(b1, b2) {
-      b1.sprite.body.setZeroVelocity();
-    }, this);
-
-    cursors = this.game.input.keyboard.createCursorKeys();
-    this.game.camera.follow(player.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
-    this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
-
-    //console.log(this.game.physics);
-
-
-    //this.game.physics.p2.overlap(player.sprite, [], function() {}, null, this);
-
-
-    //Creating GUI
     this.createGUI();
+    this.createPlayer();
 
     /*var emitter = this.game.add.emitter(this.world.centerX, 500, 200);
     emitter.makeParticles('spark');
@@ -97,13 +84,34 @@ export default class extends Phaser.State {
       this.game.camera.view.y - (this.game.camera.view.y - 30),
       'hpmana_bar');
     manaBar.scale.setTo(1.5, 1.5);
-
   }
+
+  createPlayer() {
+    player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'character');
+    player.sprite.scale.setTo(1.2, 1.2);
+    this.game.physics.p2.enable(player.sprite, false);
+    player.sprite.body.fixedRotation = true;
+    player.sprite.body.setCollisionGroup(playerCollisionGroup);
+
+    player.sprite.body.collides(itemCollisionGroup, function(b1, b2) {
+
+    }, this);
+
+    cursors = this.game.input.keyboard.createCursorKeys();
+    this.game.camera.follow(player.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+    this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
+  }
+  /*
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  */
 
 
   /*
   #####################################################################################################################
-  #####################################################################################################################
+  ################################################# UPDATE METHODS BELOW ##############################################
   #####################################################################################################################
   #####################################################################################################################
   */
@@ -130,6 +138,12 @@ export default class extends Phaser.State {
     cursors.left.isDown ? player.sprite.body.velocity.x = -200 : null
     cursors.right.isDown ? player.sprite.body.moveRight(200) : null
   }
+  /*
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  #####################################################################################################################
+  */
 
   render () {}
 }
