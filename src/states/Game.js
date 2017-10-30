@@ -42,7 +42,6 @@ export default class extends Phaser.State {
 
     //var shrub = new Shrub(this, 100, 50);
 
-
     var tree = new Tree(this, 400, 240);
 
     for(let i = 0; i < 10; i++) {
@@ -109,6 +108,9 @@ export default class extends Phaser.State {
   #####################################################################################################################
   */
   update() {
+    //sprite.bringToTop(); //brings sprite on top
+    //this.game.world.bringToTop(spriteGroup); //brings sprite group on top
+
     this.updateGUI();
     this.updatePlayer();
   }

@@ -1,8 +1,8 @@
 {
-    "name": "PhaserES6Webpack",
-    "version": "1.1.0",
+    "name": "ai_life_game",
+    "version": "0.0.1",
     "description": "",
-    "author": "leandro cabrera <leandcabrera@gmail.com>",
+    "author": "Jack Mead <jackmead515@gmail.com>",
     "main": "index.js",
     "scripts": {
         "dev": "webpack",
@@ -10,7 +10,6 @@
         "cordova": "webpack --config webpack.cordova.config.js",
         "test": "eslint ./src/**/**.js"
     },
-    "license": "MIT",
     "devDependencies": {
         "babel-core": "^6.25.0",
         "babel-eslint": "^7.2.3",
