@@ -21,6 +21,8 @@ export default class extends Phaser.State {
     this.load.image('shrub', 'assets/images/shrub.png')
     this.load.image('hpmana_bar', 'assets/images/gui/hp-mana bar.png')
     this.load.image('tree', 'assets/images/tree.png')
+    this.load.image('tree_top', 'assets/images/tree_top.png')
+    this.load.image('tree_bottom', 'assets/images/tree_bottom.png')
     this.load.image('player', 'assets/images/player.png')
 
     this.load.spritesheet('torch', 'assets/images/torch.png', 16, 25, 6);

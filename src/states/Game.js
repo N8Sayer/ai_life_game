@@ -46,13 +46,17 @@ export default class extends Phaser.State {
     items.enableBody = true;
     items.physicsBodyType = Phaser.Physics.P2JS;
 
-    /*
     trees = this.game.add.group();
     trees.enableBody = true;
     trees.physicsBodyType = Phaser.Physics.P2JS;
 
-    var tree = new Tree(this, 400, 240);
-    */
+    var treeTop = trees.create(800, 300, 'tree_top');
+    var treeBottom = trees.create(800, 370, 'tree_bottom');
+    //treeBottom.anchor.setTo(1, 1)
+    treeBottom.body.setRectangle(70, 20);
+    treeBottom.body.setCollisionGroup(treeCollisionGroup);
+    treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup]);
+    treeBottom.body.dynamic = false;
 
 
     for(let i = 0; i < 10; i++) {
@@ -96,17 +100,28 @@ export default class extends Phaser.State {
     player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'player');
     player.sprite.animations.add('player_left');
     player.sprite.animations.add('player_right');
-
     player.sprite.scale.setTo(1.2, 1.2);
     this.game.physics.p2.enable(player.sprite, false);
     player.sprite.body.fixedRotation = true;
     player.sprite.body.setCollisionGroup(playerCollisionGroup);
+      player.sprite.animations.play('player_left', 5, true);
 
     player.sprite.body.collides(itemCollisionGroup, function(b1, b2) {
 
     }, this);
+    player.sprite.body.collides(treeCollisionGroup, function(b1, b2) {
+
+    }, this);
 
     cursors = this.game.input.keyboard.createCursorKeys();
+    cursors.left.onDown.add(function() {
+      player.sprite.animations.play('player_left');
+    }, this);
+
+    cursors.right.onDown.add(function() {
+      player.sprite.animations.play('player_right');
+    }, this);
+
     this.game.camera.follow(player.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
   }
@@ -128,6 +143,8 @@ export default class extends Phaser.State {
     //sprite.bringToTop(); //brings sprite on top
     //this.game.world.bringToTop(spriteGroup); //brings sprite group on top
 
+    this.game.world.bringToTop(trees);
+
     this.updateGUI();
     this.updatePlayer();
   }
@@ -144,13 +161,11 @@ export default class extends Phaser.State {
     player.sprite.body.setZeroVelocity();
     cursors.up.isDown ? player.sprite.body.moveUp(200) : null
     cursors.down.isDown ? player.sprite.body.moveDown(200) : null
-    cursors.left.isDown ? player.sprite.body.velocity.x = -200 : null
+    cursors.left.isDown ? player.sprite.body.moveLeft(200) : null
     cursors.right.isDown ? player.sprite.body.moveRight(200) : null
 
-    if(cursors.left.isDown) {
-      player.sprite.animations.play('player_left', 5, true);
-    } else if(cursors.right.isDown) {
-      player.sprite.animations.play('player_right', 5, true);
+    if(cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {
+      player.sprite.animations.stop();
     }
 
   }
