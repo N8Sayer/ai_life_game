@@ -5,11 +5,12 @@ import Shrub from '../items/Shrub';
 import Torch from '../items/Torch';
 import Tree from '../items/Tree';
 
-var player = new Player();
-var cursors;
+var player;
+var controls;
 var healthBar;
 var manaBar;
 var backgroundSprite;
+
 var items;
 var trees;
 
@@ -28,18 +29,17 @@ export default class extends Phaser.State {
   #####################################################################################################################
   */
   create () {
-    //Creating world
     backgroundSprite = this.game.add.sprite(0, 0, 'background');
     this.world.setBounds(0, 0, 2000, 1000);
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
 
+    this.createControls();
+
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
     itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
     treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
-    //  This part is vital if you want the objects with their own collision groups to still collide with the world bounds
-    //  (which we do) - what this does is adjust the bounds to use its own collision group.
     this.game.physics.p2.updateBoundsCollisionGroup();
 
     items = this.game.add.group();
@@ -52,7 +52,6 @@ export default class extends Phaser.State {
 
     var treeTop = trees.create(800, 300, 'tree_top');
     var treeBottom = trees.create(800, 370, 'tree_bottom');
-    //treeBottom.anchor.setTo(1, 1)
     treeBottom.body.setRectangle(70, 20);
     treeBottom.body.setCollisionGroup(treeCollisionGroup);
     treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup]);
@@ -67,19 +66,36 @@ export default class extends Phaser.State {
       torch.body.collides([itemCollisionGroup, playerCollisionGroup]);
       torch.animations.add('animate');
       torch.animations.play('animate', 10, true);
-      //var torch = new Torch(this, 300, 200 + (i*40));
     }
 
 
     this.createGUI();
     this.createPlayer();
 
-    /*var emitter = this.game.add.emitter(this.world.centerX, 500, 200);
+    var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
     emitter.setAlpha(0.3, 0.8);
     emitter.setScale(0.5, 1);
-    emitter.gravity = -200;
-    emitter.start(false, 500, 1);*/
+    emitter.flow(1000, 0, 5, 1, true);
+    emitter.gravity = 0;
+    emitter.start(false, 500, 1);
+  }
+
+  createControls() {
+    controls = {
+      up: null,
+      down: null,
+      left: null,
+      right: null,
+      use: null,
+      pickUp: null,
+      drop: null,
+    }
+
+    controls.up = game.input.keyboard.addKey(Phaser.KeyCode.W);
+    controls.down = game.input.keyboard.addKey(Phaser.KeyCode.S);
+    controls.left = game.input.keyboard.addKey(Phaser.KeyCode.A);
+    controls.right = game.input.keyboard.addKey(Phaser.KeyCode.D);
   }
 
   createGUI() {
@@ -97,34 +113,56 @@ export default class extends Phaser.State {
   }
 
   createPlayer() {
-    player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'player');
-    player.sprite.animations.add('player_left');
-    player.sprite.animations.add('player_right');
-    player.sprite.scale.setTo(1.2, 1.2);
-    this.game.physics.p2.enable(player.sprite, false);
-    player.sprite.body.fixedRotation = true;
-    player.sprite.body.setCollisionGroup(playerCollisionGroup);
-      player.sprite.animations.play('player_left', 5, true);
-
-    player.sprite.body.collides(itemCollisionGroup, function(b1, b2) {
-
-    }, this);
-    player.sprite.body.collides(treeCollisionGroup, function(b1, b2) {
-
-    }, this);
-
-    cursors = this.game.input.keyboard.createCursorKeys();
-    cursors.left.onDown.add(function() {
-      player.sprite.animations.play('player_left');
-    }, this);
-
-    cursors.right.onDown.add(function() {
-      player.sprite.animations.play('player_right');
-    }, this);
-
-    this.game.camera.follow(player.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+    player = new Player(this.game, this.world.centerX, this.world.centerY, 'player');
+    this.game.add.existing(player);
+    this.game.physics.p2.enable(player, false);
+    player.body.fixedRotation = true;
+    this.game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
+
+    player.body.setCollisionGroup(playerCollisionGroup);
+
+    this.createPlayerCollisionCallBacks();
+
+    controls.left.onDown.add(() => {
+      player.animations.play('player_left');
+    }, this);
+
+    controls.right.onDown.add(() => {
+      player.animations.play('player_right');
+    }, this);
   }
+
+  createPlayerCollisionCallBacks() {
+    player.body.collides(itemCollisionGroup, (b1, b2) => {
+      console.log("Collided with torch!");
+    }, this);
+    player.body.collides(treeCollisionGroup, (b1, b2) => {
+      console.log("Collided with tree!");
+    }, this);
+    this.game.physics.arcade.overlap(player, treeCollisionGroup, (b1, b2) => {
+      console.log("Is colliding with tree!");
+    });
+  }
+
+  checkOverlapManually(enemy) {
+    for (var i =0 ; i<enemies.length; i++){
+      var dx = ship.body.x-enemy.body.x;  //distance ship X to enemy X
+      var dy = ship.body.y -enemy.body.y;  //distance ship Y to enemy Y
+      var dist = Math.sqrt(dx*dx + dy*dy);     //pythagoras ^^  (get the distance to each other)
+      if (dist < shipdiameter+bulletdiameter){  // if distance to each other is smaller than both radii together a collision/overlap is happening
+        dosomething(enemy);
+      }
+    }
+  }
+
+  checkOverlap(spriteA, spriteB) {
+    var boundsA = spriteA.getBounds();
+    var boundsB = spriteB.getBounds();
+
+    return Phaser.Rectangle.intersects(boundsA, boundsB);
+  }
+
   /*
   #####################################################################################################################
   #####################################################################################################################
@@ -142,7 +180,6 @@ export default class extends Phaser.State {
   update() {
     //sprite.bringToTop(); //brings sprite on top
     //this.game.world.bringToTop(spriteGroup); //brings sprite group on top
-
     this.game.world.bringToTop(trees);
 
     this.updateGUI();
@@ -158,14 +195,14 @@ export default class extends Phaser.State {
   }
 
   updatePlayer() {
-    player.sprite.body.setZeroVelocity();
-    cursors.up.isDown ? player.sprite.body.moveUp(200) : null
-    cursors.down.isDown ? player.sprite.body.moveDown(200) : null
-    cursors.left.isDown ? player.sprite.body.moveLeft(200) : null
-    cursors.right.isDown ? player.sprite.body.moveRight(200) : null
+    player.body.setZeroVelocity();
+    controls.up.isDown ? player.body.moveUp(200) : null
+    controls.down.isDown ? player.body.moveDown(200) : null
+    controls.left.isDown ? player.body.moveLeft(200) : null
+    controls.right.isDown ? player.body.moveRight(200) : null
 
-    if(cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {
-      player.sprite.animations.stop();
+    if(!controls.left.isDown && !controls.right.isDown && !controls.up.isDown && !controls.down.isDown) {
+      player.animations.stop();
     }
 
   }
