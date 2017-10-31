@@ -13,6 +13,10 @@ var backgroundSprite;
 var items;
 var trees;
 
+var playerCollisionGroup;
+var itemCollisionGroup;
+var treeCollisionGroup;
+
 export default class extends Phaser.State {
   init () {}
   preload () {}
@@ -30,9 +34,9 @@ export default class extends Phaser.State {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
 
-    var playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
-    var itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
-    var treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
+    playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
+    itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
+    treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
     //  This part is vital if you want the objects with their own collision groups to still collide with the world bounds
     //  (which we do) - what this does is adjust the bounds to use its own collision group.
@@ -52,11 +56,13 @@ export default class extends Phaser.State {
 
 
     for(let i = 0; i < 10; i++) {
-      var torch = items.create(300, 200 + (i*40), 'torch');
+      var torch = items.create(300, 200 + (i*35), 'torch');
       torch.body.dynamic = false;
-      torch.body.setRectangle(20, 20);
+      torch.body.setRectangle(10, 20);
       torch.body.setCollisionGroup(itemCollisionGroup);
       torch.body.collides([itemCollisionGroup, playerCollisionGroup]);
+      torch.animations.add('animate');
+      torch.animations.play('animate', 10, true);
       //var torch = new Torch(this, 300, 200 + (i*40));
     }
 
@@ -87,7 +93,10 @@ export default class extends Phaser.State {
   }
 
   createPlayer() {
-    player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'character');
+    player.sprite = this.game.add.sprite(this.world.centerX, this.world.centerY, 'player');
+    player.sprite.animations.add('player_left');
+    player.sprite.animations.add('player_right');
+
     player.sprite.scale.setTo(1.2, 1.2);
     this.game.physics.p2.enable(player.sprite, false);
     player.sprite.body.fixedRotation = true;
@@ -137,6 +146,13 @@ export default class extends Phaser.State {
     cursors.down.isDown ? player.sprite.body.moveDown(200) : null
     cursors.left.isDown ? player.sprite.body.velocity.x = -200 : null
     cursors.right.isDown ? player.sprite.body.moveRight(200) : null
+
+    if(cursors.left.isDown) {
+      player.sprite.animations.play('player_left', 5, true);
+    } else if(cursors.right.isDown) {
+      player.sprite.animations.play('player_right', 5, true);
+    }
+
   }
   /*
   #####################################################################################################################
