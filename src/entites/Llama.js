@@ -22,11 +22,11 @@ export default class Llama extends Phaser.Sprite {
       this.tempPosition.y = y;
 
       setTimeout(() => {
-        let rand = (Math.random() * (0 - 1) + 1).toFixed(0);
+        let rand = parseInt((Math.random() * (0 - 1) + 1).toFixed(0));
         let randX = parseInt((Math.random() * (20 - 100) + 100).toFixed(0));
         let randY = parseInt((Math.random() * (20 - 100) + 100).toFixed(0));
 
-        if(rand === '0') {
+        if(rand === 0) {
           this.destination.y = y + randY;
           this.destination.x = x + randX;
         } else {

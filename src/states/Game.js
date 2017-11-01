@@ -14,10 +14,12 @@ var backgroundSprite;
 
 var items;
 var trees;
+var entites;
 
 var playerCollisionGroup;
 var itemCollisionGroup;
 var treeCollisionGroup;
+var entitesCollisionGroup;
 
 export default class extends Phaser.State {
   init () {}
@@ -40,6 +42,7 @@ export default class extends Phaser.State {
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
     itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
     treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
+    entitesCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
     this.game.physics.p2.updateBoundsCollisionGroup();
 
@@ -51,11 +54,15 @@ export default class extends Phaser.State {
     trees.enableBody = true;
     trees.physicsBodyType = Phaser.Physics.P2JS;
 
+    entites = this.game.add.group();
+    trees.enableBody = true;
+    trees.physicsBodyType = Phaser.Physics.P2JS;
+
     var treeTop = trees.create(800, 300, 'tree_top');
     var treeBottom = trees.create(800, 370, 'tree_bottom');
     treeBottom.body.setRectangle(70, 20);
     treeBottom.body.setCollisionGroup(treeCollisionGroup);
-    treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup]);
+    treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
     treeBottom.body.dynamic = false;
 
 
@@ -64,7 +71,7 @@ export default class extends Phaser.State {
       torch.body.dynamic = false;
       torch.body.setRectangle(10, 20);
       torch.body.setCollisionGroup(itemCollisionGroup);
-      torch.body.collides([itemCollisionGroup, playerCollisionGroup]);
+      torch.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
       torch.animations.add('animate');
       torch.animations.play('animate', 10, true);
     }
@@ -74,8 +81,9 @@ export default class extends Phaser.State {
 
     var llama = new Llama(this.game, 400, 400, 'llama')
     this.game.add.existing(llama);
-    this.game.physics.p2.enable(llama, false);
-    llama.body.fixedRotation = true;
+    llama.body.setRectangle(10, 20);
+    llama.body.setCollisionGroup(entitesCollisionGroup);
+    llama.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
     llama.animations.play('llama', 10, true);
 
     var emitter = this.game.add.emitter(1000, 500, 5);
@@ -120,7 +128,6 @@ export default class extends Phaser.State {
 
   createPlayer() {
     player = new Player(this.game, this.world.centerX, this.world.centerY, 'warrior_idle_left');
-    //player.anchor.y=1;
     this.game.add.existing(player);
     this.game.physics.p2.enable(player, false);
     player.body.fixedRotation = true;
@@ -132,15 +139,11 @@ export default class extends Phaser.State {
     this.createPlayerCollisionCallBacks();
 
     controls.left.onDown.add(() => {
-      console.log("Begin Left")
-      console.log(player.animations.currentAnim.name);
-      player.animations.play('warrior_running_left', 14, true);
-      console.log(player.animations.currentAnim.name);
+      player.animations.play('warrior_running_left');
     }, this);
 
     controls.right.onDown.add(() => {
-      console.log("Begin Right")
-      player.animations.play('warrior_running_right', 14, true);
+      player.animations.play('warrior_running_right');
     }, this);
   }
 
@@ -151,9 +154,9 @@ export default class extends Phaser.State {
     player.body.collides(treeCollisionGroup, (b1, b2) => {
       console.log("Collided with tree!");
     }, this);
-    this.game.physics.arcade.overlap(player, treeCollisionGroup, (b1, b2) => {
-      console.log("Is colliding with tree!");
-    });
+    player.body.collides(entitesCollisionGroup, (b1, b2) => {
+      console.log("Collided with entity!");
+    }, this);
   }
 
   checkOverlapManually(enemy) {
@@ -213,7 +216,7 @@ export default class extends Phaser.State {
     controls.right.isDown ? player.body.moveRight(200) : null
 
     if(!controls.left.isDown && !controls.right.isDown && !controls.up.isDown && !controls.down.isDown) {
-      player.animations.play('warrior_idle_left', 3, true);
+      player.animations.play('warrior_idle_left');
     }
 
   }
