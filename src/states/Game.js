@@ -79,13 +79,13 @@ export default class extends Phaser.State {
     this.createGUI();
     this.createPlayer();
 
-    var llama = new Llama(this.game, 400, 400, 'llama')
+    /*var llama = new Llama(this.game, 400, 400, 'llama')
     console.log(entites);
     this.game.add.existing(llama);
     llama.body.setRectangle(10, 20);
     llama.body.setCollisionGroup(entitesCollisionGroup);
     llama.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
-    llama.animations.play('llama', 10, true);
+    llama.animations.play('llama', 10, true);*/
 
     var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
@@ -128,7 +128,7 @@ export default class extends Phaser.State {
   }
 
   createPlayer() {
-    player = new Player(this.game, this.world.centerX, this.world.centerY, 'warrior_idle_left');
+    player = new Player(this.game, this.world.centerX, this.world.centerY, 'warrior');
     this.game.add.existing(player);
     this.game.physics.p2.enable(player, false);
     player.body.fixedRotation = true;
