@@ -25,9 +25,12 @@ export default class extends Phaser.State {
     this.load.image('tree_bottom', 'assets/images/tree_bottom.png')
     this.load.image('player', 'assets/images/player.png')
 
-    this.load.spritesheet('torch', 'assets/images/torch.png', 16, 25, 6);
-    this.load.spritesheet('player_left', 'assets/images/player_left.png', 30, 40, 5);
-    this.load.spritesheet('player_right', 'assets/images/player_right.png', 30, 40, 5);
+    this.load.spritesheet('torch', 'assets/images/torch.png', 16, 25, 8);
+    this.load.spritesheet('llama', 'assets/images/llama.png', 48, 48, 6);
+    this.load.spritesheet('warrior_running_left', 'assets/images/warrior_running_left.png', 30, 40, 6);
+    this.load.spritesheet('warrior_running_right', 'assets/images/warrior_running_right.png', 30, 40, 6);
+    this.load.spritesheet('warrior_idle_left', 'assets/images/warrior_idle_left.png', 30, 40, 2);
+
   }
 
   create () {

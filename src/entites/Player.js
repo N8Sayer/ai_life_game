@@ -6,8 +6,9 @@ export default class Player extends Phaser.Sprite {
     this.health = 100;
     this.inHand = null;
     this.projectiles = [];
-    this.animations.add('player_left');
-    this.animations.add('player_right');
+    this.animations.add('warrior_idle_left');
+    this.animations.add('warrior_running_left');
+    this.animations.add('warrior_running_right');
     this.scale.setTo(1.2, 1.2);
   }
 }

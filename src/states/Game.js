@@ -4,6 +4,7 @@ import Player from '../entites/Player';
 import Shrub from '../items/Shrub';
 import Torch from '../items/Torch';
 import Tree from '../items/Tree';
+import Llama from '../entites/Llama';
 
 var player;
 var controls;
@@ -68,9 +69,14 @@ export default class extends Phaser.State {
       torch.animations.play('animate', 10, true);
     }
 
-
     this.createGUI();
     this.createPlayer();
+
+    var llama = new Llama(this.game, 400, 400, 'llama')
+    this.game.add.existing(llama);
+    this.game.physics.p2.enable(llama, false);
+    llama.body.fixedRotation = true;
+    llama.animations.play('llama', 10, true);
 
     var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
@@ -113,7 +119,8 @@ export default class extends Phaser.State {
   }
 
   createPlayer() {
-    player = new Player(this.game, this.world.centerX, this.world.centerY, 'player');
+    player = new Player(this.game, this.world.centerX, this.world.centerY, 'warrior_idle_left');
+    //player.anchor.y=1;
     this.game.add.existing(player);
     this.game.physics.p2.enable(player, false);
     player.body.fixedRotation = true;
@@ -125,11 +132,15 @@ export default class extends Phaser.State {
     this.createPlayerCollisionCallBacks();
 
     controls.left.onDown.add(() => {
-      player.animations.play('player_left');
+      console.log("Begin Left")
+      console.log(player.animations.currentAnim.name);
+      player.animations.play('warrior_running_left', 14, true);
+      console.log(player.animations.currentAnim.name);
     }, this);
 
     controls.right.onDown.add(() => {
-      player.animations.play('player_right');
+      console.log("Begin Right")
+      player.animations.play('warrior_running_right', 14, true);
     }, this);
   }
 
@@ -202,7 +213,7 @@ export default class extends Phaser.State {
     controls.right.isDown ? player.body.moveRight(200) : null
 
     if(!controls.left.isDown && !controls.right.isDown && !controls.up.isDown && !controls.down.isDown) {
-      player.animations.stop();
+      player.animations.play('warrior_idle_left', 3, true);
     }
 
   }
