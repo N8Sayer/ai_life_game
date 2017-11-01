@@ -55,8 +55,8 @@ export default class extends Phaser.State {
     trees.physicsBodyType = Phaser.Physics.P2JS;
 
     entites = this.game.add.group();
-    trees.enableBody = true;
-    trees.physicsBodyType = Phaser.Physics.P2JS;
+    entites.enableBody = true;
+    entites.physicsBodyType = Phaser.Physics.P2JS;
 
     var treeTop = trees.create(800, 300, 'tree_top');
     var treeBottom = trees.create(800, 370, 'tree_bottom');
@@ -80,6 +80,7 @@ export default class extends Phaser.State {
     this.createPlayer();
 
     var llama = new Llama(this.game, 400, 400, 'llama')
+    console.log(entites);
     this.game.add.existing(llama);
     llama.body.setRectangle(10, 20);
     llama.body.setCollisionGroup(entitesCollisionGroup);
@@ -140,10 +141,12 @@ export default class extends Phaser.State {
 
     controls.left.onDown.add(() => {
       player.animations.play('warrior_running_left');
+      player.prevAnimation = 'warrior_idle_left';
     }, this);
 
     controls.right.onDown.add(() => {
       player.animations.play('warrior_running_right');
+      player.prevAnimation = 'warrior_idle_right';
     }, this);
   }
 
@@ -216,7 +219,7 @@ export default class extends Phaser.State {
     controls.right.isDown ? player.body.moveRight(200) : null
 
     if(!controls.left.isDown && !controls.right.isDown && !controls.up.isDown && !controls.down.isDown) {
-      player.animations.play('warrior_idle_left');
+      player.animations.play(player.prevAnimation);
     }
 
   }
