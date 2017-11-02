@@ -12,14 +12,12 @@ export default class Llama extends Phaser.Sprite {
   update() {
     let dx = this.destination.x; let dy = this.destination.y;
     let x = this.position.x; let y = this.position.y;
+    this.body.rotation = 0;
 
-    if(Phaser.Math.distance(x, y, dx, dy) <= 10 &&
-       dx == null && dy == null) {
+    if(Phaser.Math.distance(x, y, dx, dy) <= 10) {
 
       this.destination.x = null;
       this.destination.y = null;
-      this.tempPosition.x = x;
-      this.tempPosition.y = y;
 
       setTimeout(() => {
         let rand = parseInt((Math.random() * (0 - 1) + 1).toFixed(0));
@@ -35,9 +33,7 @@ export default class Llama extends Phaser.Sprite {
         }
       }, 5000);
 
-    } else {
-
-      dx = this.tempPosition.x; dy = this.tempPosition.y;
+    } else if(dx != null && dy != null) {
 
       if(Phaser.Math.distance(x+1, y, dx, dy) < Phaser.Math.distance(x, y, dx, dy)) {
           this.body.moveRight(50);
