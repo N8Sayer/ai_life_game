@@ -37,13 +37,10 @@ export default class extends Phaser.State {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
 
-    this.createControls();
-
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
     itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
     treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
     entitesCollisionGroup = this.game.physics.p2.createCollisionGroup();
-
     this.game.physics.p2.updateBoundsCollisionGroup();
 
     items = this.game.add.group();
@@ -65,7 +62,6 @@ export default class extends Phaser.State {
     treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
     treeBottom.body.dynamic = false;
 
-
     for(let i = 0; i < 10; i++) {
       var torch = items.create(300, 200 + (i*35), 'torch');
       torch.body.dynamic = false;
@@ -76,20 +72,17 @@ export default class extends Phaser.State {
       torch.animations.play('animate', 10, true);
     }
 
-    this.createGUI();
-    this.createPlayer();
-
-    var llama = new Llama(this.game, 400, 400, 'llama');
-    entites.add(llama);
-    //this.game.add.existing(llama);
-    llama.destination.x = 450;
-    llama.destination.y = 450;
-    llama.body.setRectangle(10, 20);
-    llama.body.setCollisionGroup(entitesCollisionGroup);
-    llama.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
-    llama.body.mass = 100;
-    llama.body.damping = 0.3;
-    llama.animations.play('llama', 10, true);
+    for(let i = 0; i < 5; i++) {
+      var llama = new Llama(this.game, 400 + (i*30), 400, 'llama');
+      entites.add(llama);
+      llama.body.setRectangle(10, 20);
+      llama.body.setCollisionGroup(entitesCollisionGroup);
+      llama.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
+      llama.body.mass = 100;
+      llama.body.damping = 0.3;
+      llama.animations.play('idle');
+      llama.getRandomDestination();
+    }
 
     var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
@@ -98,6 +91,10 @@ export default class extends Phaser.State {
     emitter.flow(1000, 0, 5, 1, true);
     emitter.gravity = 0;
     emitter.start(false, 500, 1);
+
+    this.createGUI();
+    this.createControls();
+    this.createPlayer();
   }
 
   createControls() {
@@ -136,11 +133,7 @@ export default class extends Phaser.State {
     this.game.add.existing(player);
     this.game.physics.p2.enable(player, false);
     player.body.fixedRotation = true;
-    this.game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
-    this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
-
     player.body.setCollisionGroup(playerCollisionGroup);
-
     this.createPlayerCollisionCallBacks();
 
     controls.left.onDown.add(() => {
@@ -152,6 +145,9 @@ export default class extends Phaser.State {
       player.animations.play('warrior_running_right');
       player.prevAnimation = 'warrior_idle_right';
     }, this);
+
+    this.game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+    this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
   }
 
   createPlayerCollisionCallBacks() {
@@ -225,7 +221,6 @@ export default class extends Phaser.State {
     if(!controls.left.isDown && !controls.right.isDown && !controls.up.isDown && !controls.down.isDown) {
       player.animations.play(player.prevAnimation);
     }
-
   }
   /*
   #####################################################################################################################
