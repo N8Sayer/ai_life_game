@@ -1,11 +1,11 @@
 import Phaser from 'phaser'
 
-export default class WanderEntity extends Phaser.Sprite {
+export default class AttackEntity extends Phaser.Sprite {
   constructor(game, x, y, asset) {
     super(game, x, y, asset);
     this.destination = {x: null, y: null}
-    this.findDestination = false;
-    this.findDestinationLoop = null;
+    this.pursueTargetLoop = null;
+    this.target = null;
   }
 
   /**
@@ -18,47 +18,52 @@ export default class WanderEntity extends Phaser.Sprite {
     let dx = this.destination.x; let dy = this.destination.y;
     let x = this.position.x; let y = this.position.y;
     this.body.setZeroRotation();
+    this.body.setZeroVelocity();
     this.body.rotation = 0;
 
-    if(Phaser.Math.distance(x, y, dx, dy) <= 10 || !this.findDestination) {
+    if(this.target != null) {
+      if(this.pursueTargetLoop != null) {
+        this.animations.play('idle');
+        this.pursueTargetLoop = setTimeout(() => {
+           pursueTargetLoop = null;
+           if(setTargetDestination()){
+             this.animations.play('move');
+           }
+        }, 15000);
+      }
+    } else {
+      return;
+    }
 
-      this.destination.x = null;
-      this.destination.y = null;
-      this.findDestination = true;
-      this.body.setZeroVelocity();
-      this.animations.play('idle');
+    if(Phaser.Math.distance(x, y, dx, dy) <= 5) {
 
-      setTimeout(() => {
-        this.getRandomDestination();
-        this.animations.play('move');
-      }, 5000);
+      //this.animations.play('attack');
 
-      if(this.findDestinationLoop) clearTimeout(this.findDestinationLoop);
-      this.findDestinationLoop = setTimeout(() => {
-        this.findDestination = false;
-      }, 15000);
+      //TODO Attack?
 
     } else if(dx != null && dy != null) {
 
       if(Phaser.Math.distance(x+1, y, dx, dy) < Phaser.Math.distance(x, y, dx, dy)) {
-          this.body.moveRight(50);
+          this.body.moveRight(70);
       } else if(Phaser.Math.distance(x-1, y, dx, dy) < Phaser.Math.distance(x, y, dx, dy)){
-          this.body.moveLeft(50);
+          this.body.moveLeft(70);
       } else if(Phaser.Math.distance(x, y-1, dx, dy) < Phaser.Math.distance(x, y, dx, dy)) {
-          this.body.moveUp(50);
+          this.body.moveUp(70);
       } else if(Phaser.Math.distance(x, y+1, dx, dy) < Phaser.Math.distance(x, y, dx, dy)) {
-        this.body.moveDown(50);
+        this.body.moveDown(70);
       }
 
     }
   }
 
-  getRandomDestination() {
+  setTargetDestination() {
     var angle = Math.random()*Math.PI*2;
     let randX = Math.cos(angle)*200;
     let randY = Math.sin(angle)*200;
     this.destination.y = this.position.y + randY;
     this.destination.x = this.position.x + randX;
+    target = 1;
+    return true;
   }
 
 }

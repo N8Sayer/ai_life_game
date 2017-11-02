@@ -3,22 +3,27 @@ import Phaser from 'phaser'
 import Player from '../entites/Player';
 import Shrub from '../items/Shrub';
 import Torch from '../items/Torch';
-import Tree from '../items/Tree';
+import TreeTop from '../items/TreeTop';
+import TreeBottom from '../items/TreeBottom';
 import Llama from '../entites/Llama';
+import Wolf from '../entites/Wolf';
 
 var player;
 var controls;
+
 var healthBar;
 var manaBar;
+var healthBarFill;
+var manaBarFill;
+
 var backgroundSprite;
 
 var items;
-var trees;
 var entites;
+var gui;
 
 var playerCollisionGroup;
 var itemCollisionGroup;
-var treeCollisionGroup;
 var entitesCollisionGroup;
 
 export default class extends Phaser.State {
@@ -39,50 +44,43 @@ export default class extends Phaser.State {
 
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
     itemCollisionGroup = this.game.physics.p2.createCollisionGroup();
-    treeCollisionGroup = this.game.physics.p2.createCollisionGroup();
     entitesCollisionGroup = this.game.physics.p2.createCollisionGroup();
     this.game.physics.p2.updateBoundsCollisionGroup();
+
+    gui = this.game.add.group();
 
     items = this.game.add.group();
     items.enableBody = true;
     items.physicsBodyType = Phaser.Physics.P2JS;
 
-    trees = this.game.add.group();
-    trees.enableBody = true;
-    trees.physicsBodyType = Phaser.Physics.P2JS;
-
     entites = this.game.add.group();
     entites.enableBody = true;
     entites.physicsBodyType = Phaser.Physics.P2JS;
 
-    var treeTop = trees.create(800, 300, 'tree_top');
-    var treeBottom = trees.create(800, 370, 'tree_bottom');
-    treeBottom.body.setRectangle(70, 20);
-    treeBottom.body.setCollisionGroup(treeCollisionGroup);
-    treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
+    var treeTop = new TreeTop(this.game, 800, 300, 'tree_top');
+    var treeBottom = new TreeBottom(this.game, 800, 370, 'tree_bottom');
+    items.add(treeTop);
+    items.add(treeBottom);
     treeBottom.body.dynamic = false;
+    treeBottom.body.setRectangle(70, 20);
+    treeBottom.body.setCollisionGroup(itemCollisionGroup);
+    treeBottom.body.collides([itemCollisionGroup, playerCollisionGroup, entitesCollisionGroup]);
 
     for(let i = 0; i < 10; i++) {
-      var torch = items.create(300, 200 + (i*35), 'torch');
-      torch.body.dynamic = false;
-      torch.body.setRectangle(10, 20);
-      torch.body.setCollisionGroup(itemCollisionGroup);
-      torch.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
-      torch.animations.add('animate');
-      torch.animations.play('animate', 10, true);
+      var torch = new Torch(this.game, 300, 200 + (i*50), 'torch');
+      torch.addToWorld({group: items, object: torch, collisionGroup: itemCollisionGroup,
+        collisions: [itemCollisionGroup, playerCollisionGroup, entitesCollisionGroup]});
     }
 
     for(let i = 0; i < 5; i++) {
       var llama = new Llama(this.game, 400 + (i*30), 400, 'llama');
-      entites.add(llama);
-      llama.body.setRectangle(10, 20);
-      llama.body.setCollisionGroup(entitesCollisionGroup);
-      llama.body.collides([itemCollisionGroup, playerCollisionGroup, treeCollisionGroup, entitesCollisionGroup]);
-      llama.body.mass = 100;
-      llama.body.damping = 0.3;
-      llama.animations.play('idle');
-      llama.getRandomDestination();
+      llama.addToWorld({group: entites, object: llama, collisionGroup: entitesCollisionGroup,
+        collisions: [itemCollisionGroup, playerCollisionGroup, entitesCollisionGroup]});
     }
+
+    var wolf = new Wolf(this.game, 500, 600, 'llama');
+    wolf.addToWorld({group: entites, object: wolf, collisionGroup: entitesCollisionGroup,
+      collisions: [itemCollisionGroup, playerCollisionGroup, entitesCollisionGroup]});
 
     var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
@@ -112,20 +110,47 @@ export default class extends Phaser.State {
     controls.down = game.input.keyboard.addKey(Phaser.KeyCode.S);
     controls.left = game.input.keyboard.addKey(Phaser.KeyCode.A);
     controls.right = game.input.keyboard.addKey(Phaser.KeyCode.D);
+    controls.use = game.input.mousePointer.leftButton;
+    controls.drop = game.input.mousePointer.rightButton;
+    controls.pickUp = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
   }
 
   createGUI() {
-    healthBar = this.game.add.sprite(
+    healthBar = gui.create(
       this.game.camera.view.x - (this.game.camera.view.x - 10),
       this.game.camera.view.y - (this.game.camera.view.y - 10),
       'hpmana_bar');
-    healthBar.scale.setTo(1.5, 1.5);
 
-    manaBar = this.game.add.sprite(
+    manaBar = gui.create(
       this.game.camera.view.x - (this.game.camera.view.x - 10),
-      this.game.camera.view.y - (this.game.camera.view.y - 30),
+      this.game.camera.view.y - (this.game.camera.view.y - 25),
       'hpmana_bar');
+
+    healthBar.scale.setTo(1.5, 1.5);
     manaBar.scale.setTo(1.5, 1.5);
+
+    var bmd = game.add.bitmapData(healthBar.width-5, healthBar.height-2);
+    bmd.ctx.beginPath();
+    bmd.ctx.rect(2, 0, healthBar.width-5, healthBar.height-2);
+    bmd.ctx.fillStyle = '#ff0000';
+    bmd.ctx.fill();
+    healthBarFill = gui.create(
+      this.game.camera.view.x - (this.game.camera.view.x - 10),
+      this.game.camera.view.y - (this.game.camera.view.y - 10),
+      bmd);
+
+    bmd = game.add.bitmapData(manaBar.width-5, manaBar.height-2);
+    bmd.ctx.beginPath();
+    bmd.ctx.rect(2, 0, manaBar.width-5, manaBar.height-2);
+    bmd.ctx.fillStyle = '#0099ff';
+    bmd.ctx.fill();
+    manaBarFill = gui.create(
+      this.game.camera.view.x - (this.game.camera.view.x - 10),
+      this.game.camera.view.y - (this.game.camera.view.y - 25),
+      bmd);
+
+    healthBar.bringToTop();
+    manaBar.bringToTop();
   }
 
   createPlayer() {
@@ -147,15 +172,12 @@ export default class extends Phaser.State {
     }, this);
 
     this.game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
-    this.game.time.events.loop(Phaser.Timer.SECOND, function(){player.health -= 1}, this);
+    this.game.time.events.loop(Phaser.Timer.SECOND*10, function(){player.health -= 1}, this);
   }
 
   createPlayerCollisionCallBacks() {
     player.body.collides(itemCollisionGroup, (b1, b2) => {
-      console.log("Collided with torch!");
-    }, this);
-    player.body.collides(treeCollisionGroup, (b1, b2) => {
-      console.log("Collided with tree!");
+      console.log("Collided with item!");
     }, this);
     player.body.collides(entitesCollisionGroup, (b1, b2) => {
       console.log("Collided with entity!");
@@ -195,20 +217,27 @@ export default class extends Phaser.State {
   #####################################################################################################################
   */
   update() {
-    //sprite.bringToTop(); //brings sprite on top
-    //this.game.world.bringToTop(spriteGroup); //brings sprite group on top
-    this.game.world.bringToTop(trees);
+    this.game.world.bringToTop(items);
+    this.game.world.bringToTop(gui);
 
     this.updateGUI();
     this.updatePlayer();
   }
 
   updateGUI() {
+
+    let healthP = player.health / player.maxHealth;
+    healthBarFill.width = healthP * healthBarFill.width;
+
     healthBar.x = this.game.camera.view.x + 10;
     healthBar.y = this.game.camera.view.y + 10;
-
     manaBar.x = this.game.camera.view.x + 10;
-    manaBar.y = this.game.camera.view.y + 30;
+    manaBar.y = this.game.camera.view.y + 25;
+
+    healthBarFill.x = this.game.camera.view.x + 10;
+    healthBarFill.y = this.game.camera.view.y + 10;
+    manaBarFill.x = this.game.camera.view.x + 10;
+    manaBarFill.y = this.game.camera.view.y + 25;
   }
 
   updatePlayer() {

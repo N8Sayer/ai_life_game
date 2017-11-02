@@ -1,6 +1,6 @@
-import WanderEntity from './WanderEntity';
+import AttackEntity from './AttackEntity';
 
-export default class Llama extends WanderEntity {
+export default class Wolf extends AttackEntity {
   constructor(game, x, y, asset) {
     super(game, x, y, asset);
     this.health = 50;
