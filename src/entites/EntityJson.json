@@ -1,0 +1,17 @@
+{
+  "name": "Llama",
+  "ai": "wander",
+  "health": 500,
+  "maxHealth": 500,
+  "mass": 100,
+  "mana": 5,
+  "maxMana": 5,
+  "position": {
+    "x": 400,
+    "y": 400
+  },
+  "destination": {
+    "x": 400,
+    "y": 400
+  }
+}

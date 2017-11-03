@@ -6,6 +6,7 @@ export default class AttackEntity extends Phaser.Sprite {
     this.destination = {x: null, y: null}
     this.pursueTargetLoop = null;
     this.target = null;
+    this.setTargetDestination();
   }
 
   /**
@@ -18,18 +19,20 @@ export default class AttackEntity extends Phaser.Sprite {
     let dx = this.destination.x; let dy = this.destination.y;
     let x = this.position.x; let y = this.position.y;
     this.body.setZeroRotation();
-    this.body.setZeroVelocity();
+    //this.body.setZeroVelocity();
     this.body.rotation = 0;
 
     if(this.target != null) {
       if(this.pursueTargetLoop != null) {
         this.animations.play('idle');
+        this.target = null;
+        this.body.setZeroVelocity();
         this.pursueTargetLoop = setTimeout(() => {
            pursueTargetLoop = null;
-           if(setTargetDestination()){
+           if(this.setTargetDestination()){
              this.animations.play('move');
            }
-        }, 15000);
+        }, 20000);
       }
     } else {
       return;
@@ -41,7 +44,7 @@ export default class AttackEntity extends Phaser.Sprite {
 
       //TODO Attack?
 
-    } else if(dx != null && dy != null) {
+    } else if(dx != null && dy != null && this.target != null) {
 
       if(Phaser.Math.distance(x+1, y, dx, dy) < Phaser.Math.distance(x, y, dx, dy)) {
           this.body.moveRight(70);
@@ -58,11 +61,11 @@ export default class AttackEntity extends Phaser.Sprite {
 
   setTargetDestination() {
     var angle = Math.random()*Math.PI*2;
-    let randX = Math.cos(angle)*200;
-    let randY = Math.sin(angle)*200;
+    let randX = Math.cos(angle)*500;
+    let randY = Math.sin(angle)*500;
     this.destination.y = this.position.y + randY;
     this.destination.x = this.position.x + randX;
-    target = 1;
+    this.target = 1;
     return true;
   }
 

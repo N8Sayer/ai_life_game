@@ -5,6 +5,8 @@ export default class Player extends Phaser.Sprite {
     super(game, x, y, asset);
     this.health = 100;
     this.maxHealth = 100;
+    this.mana = 100;
+    this.maxMana = 100;
     this.inHand = null;
     this.projectiles = [];
     this.animations.add('warrior_idle_left', [0, 7], 3, true);
