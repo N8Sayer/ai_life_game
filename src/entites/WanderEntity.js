@@ -55,8 +55,8 @@ export default class WanderEntity extends Phaser.Sprite {
 
   getRandomDestination() {
     var angle = Math.random()*Math.PI*2;
-    let randX = Math.cos(angle)*200;
-    let randY = Math.sin(angle)*200;
+    let randX = Math.cos(angle)*500;
+    let randY = Math.sin(angle)*500;
     this.destination.y = this.position.y + randY;
     this.destination.x = this.position.x + randX;
   }

@@ -1,5 +1,5 @@
 /* globals __DEV__ */
-import Phaser from 'phaser'
+import Phaser from 'phaser';
 import Player from '../entites/Player';
 import Shrub from '../items/Shrub';
 import Torch from '../items/Torch';
@@ -10,9 +10,6 @@ import Wolf from '../entites/Wolf';
 import Sheep from '../entites/Sheep';
 
 import { forest } from '../realms/forest';
-
-var menu;
-var menuGroup;
 
 export default class extends Phaser.State {
   init () {}
@@ -25,8 +22,8 @@ export default class extends Phaser.State {
   #####################################################################################################################
   */
   create () {
+    this.isLoading = true;
     this.stage.disableVisibilityChange = true;
-    this.world.setBounds(0, 0, 2000, 1000);
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
 
@@ -35,12 +32,9 @@ export default class extends Phaser.State {
     this.entitesCollisionGroup = this.game.physics.p2.createCollisionGroup();
     this.game.physics.p2.updateBoundsCollisionGroup();
 
-    this.createControls();
-    this.createPlayer();
-
     this.guiGroup = this.game.add.group();
-    menuGroup = this.game.add.group();
-    menuGroup.visible = false;
+    this.menuGroup = this.game.add.group();
+    this.menuGroup.visible = false;
 
     this.itemsGroup = this.game.add.group();
     this.itemsGroup.enableBody = true;
@@ -50,17 +44,19 @@ export default class extends Phaser.State {
     this.entitesGroup.enableBody = true;
     this.entitesGroup.physicsBodyType = Phaser.Physics.P2JS;
 
+    this.createControls();
+    this.createPlayer();
     this.createGUI();
 
     forest(this);
 
-    var emitter = this.game.add.emitter(1000, 500, 5);
+    /*var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
     emitter.setAlpha(0.3, 0.8);
     emitter.setScale(0.5, 1);
     emitter.flow(1000, 0, 5, 1, true);
     emitter.gravity = 0;
-    emitter.start(false, 500, 1);
+    emitter.start(false, 500, 1);*/
   }
 
   createControls() {
@@ -86,7 +82,7 @@ export default class extends Phaser.State {
   }
 
   createGUI() {
-    menu = menuGroup.create(
+    var menu = this.menuGroup.create(
       this.game.width/2,
       this.game.height/2,
       'panel');
@@ -150,15 +146,11 @@ export default class extends Phaser.State {
     }, this);
 
     this.controls.menu.onDown.add(() => {
-      menuGroup.visible = !menuGroup.visible;
+      this.menuGroup.visible = !this.menuGroup.visible;
     }, this);
 
     this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     this.game.time.events.loop(Phaser.Timer.SECOND, function(){this.player.health -= 1}, this);
-
-    this.player.visible = true;
-
-    console.log(this);
   }
 
   createPlayerCollisionCallBacks() {
@@ -204,10 +196,6 @@ export default class extends Phaser.State {
   #####################################################################################################################
   */
   update() {
-    this.game.world.bringToTop(this.itemsGroup);
-    this.game.world.bringToTop(this.guiGroup);
-    this.game.world.bringToTop(menuGroup);
-
     this.updateGUI();
     this.updatePlayer();
   }
