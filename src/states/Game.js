@@ -155,6 +155,10 @@ export default class extends Phaser.State {
 
     this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     this.game.time.events.loop(Phaser.Timer.SECOND, function(){this.player.health -= 1}, this);
+
+    this.player.visible = true;
+
+    console.log(this);
   }
 
   createPlayerCollisionCallBacks() {

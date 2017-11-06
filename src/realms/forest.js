@@ -16,7 +16,6 @@ export const forest = (state) => {
     "y": 0,
     "key": 'background'
   };
-
   state.backgroundSprite = state.game.add.sprite(0, 0, 'background');
 
   for(let y = 50; y < 1000; y+=150) {
@@ -55,8 +54,34 @@ export const forest = (state) => {
     }
   }
 
-  for(let i = 0; i < 5; i++) {
-    var llama = new Llama(state.game, 400 + (i*30), 400, 'llama');
+  for(let i = 0; i < 10; i++) {
+    let randX = Math.floor(Math.random() * (2000 - 50)) + 50;
+    let randY = Math.floor(Math.random() * (1000 - 50)) + 50;
+
+    var llama = new Llama(state.game, randX, randY, 'llama');
+
+    var skip = false;
+    for(let x = 0; x < state.itemsGroup.children.length; x++) {
+      if(state.itemsGroup.children[x] instanceof TreeBottom && state.checkOverlap(llama, state.itemsGroup.children[x])) {
+        skip = true;
+        break;
+      }
+    }
+    if(skip){
+      i--;
+      continue;
+    }
+
+    map.entites.push({
+      "name": "Llama",
+      "dynamic": true,
+      "mass": 100,
+      "position": {
+        "x": randX,
+        "y": randY
+      }
+    });
+
     llama.addToWorld({group: state.entitesGroup, object: llama, collisionGroup: state.entitesCollisionGroup,
       collisions: [state.itemCollisionGroup, state.playerCollisionGroup, state.entitesCollisionGroup]});
   }
