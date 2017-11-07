@@ -1,15 +1,8 @@
 /* globals __DEV__ */
 import Phaser from 'phaser';
 import Player from '../entites/Player';
-import Shrub from '../items/Shrub';
-import Torch from '../items/Torch';
-import TreeTop from '../items/TreeTop';
-import TreeBottom from '../items/TreeBottom';
-import Llama from '../entites/Llama';
-import Wolf from '../entites/Wolf';
-import Sheep from '../entites/Sheep';
 
-import { forest } from '../realms/forest';
+import { loadRealm } from '../realms/loadRealm';
 
 export default class extends Phaser.State {
   init () {}
@@ -33,6 +26,7 @@ export default class extends Phaser.State {
     this.game.physics.p2.updateBoundsCollisionGroup();
 
     this.guiGroup = this.game.add.group();
+
     this.menuGroup = this.game.add.group();
     this.menuGroup.visible = false;
 
@@ -48,7 +42,7 @@ export default class extends Phaser.State {
     this.createPlayer();
     this.createGUI();
 
-    forest(this);
+    loadRealm(this);
 
     /*var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
