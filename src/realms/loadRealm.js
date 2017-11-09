@@ -7,10 +7,11 @@ import Wolf from '../entites/Wolf';
 import Sheep from '../entites/Sheep';
 
 import axios from 'axios';
+import io from 'socket.io-client';
 
 export const loadRealm = (state) => {
 
-  axios.post('http://127.0.0.1:5000/api/v1/game/state').then((res) => {
+  return axios.post('http://127.0.0.1:5000/api/v1/game/state').then((res) => {
 
     console.log(res.data);
 
@@ -65,6 +66,7 @@ export const loadRealm = (state) => {
 
       state.isLoading = false;
 
+      Promise.resolve();
     }
 
   }).catch((err) => {
@@ -80,5 +82,7 @@ export const loadRealm = (state) => {
     state.game.world.bringToTop(state.menuGroup);
 
     state.isLoading = false;
+
+    Promise.reject();
   });
 };

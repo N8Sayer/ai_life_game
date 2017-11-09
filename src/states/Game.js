@@ -4,6 +4,8 @@ import Player from '../entites/Player';
 
 import { loadRealm } from '../realms/loadRealm';
 
+import io from 'socket.io-client';
+
 export default class extends Phaser.State {
   init () {}
   preload () {}
@@ -42,7 +44,21 @@ export default class extends Phaser.State {
     this.createPlayer();
     this.createGUI();
 
-    loadRealm(this);
+    loadRealm(this).then(() => {
+      this.socket = io('http://127.0.0.1:5000');
+
+      this.socket.on('connect', function(data) {
+        console.log(data);
+      });
+
+      this.socket.on('disconnect', function(data) {
+        console.log(data);
+      });
+
+      this.socket.on('update', function() {
+        console.log('Update Sent');
+      });
+    });
 
     /*var emitter = this.game.add.emitter(1000, 500, 5);
     emitter.makeParticles('spark');
@@ -125,7 +141,9 @@ export default class extends Phaser.State {
     this.player = new Player(this.game, 50, 50, 'warrior');
     this.game.add.existing(this.player);
     this.game.physics.p2.enable(this.player, false);
+    this.player.body.collideWorldBounds = true;
     this.player.body.fixedRotation = true;
+    this.player.body.setRectangle(20, 30);
     this.player.body.setCollisionGroup(this.playerCollisionGroup);
     this.createPlayerCollisionCallBacks();
 
@@ -224,6 +242,31 @@ export default class extends Phaser.State {
 
     if(!this.controls.left.isDown && !this.controls.right.isDown && !this.controls.up.isDown && !this.controls.down.isDown) {
       this.player.animations.play(this.player.prevAnimation);
+    }
+
+    const { x, y } = this.player.position;
+    const { height, width } = this.world.bounds;
+
+    if(x - 10 < 0) {
+      //left world boundary
+      this.socket.emit('update', {'update': 'realmLeft'}, () => {
+        console.log("Moving to left realm...")
+      });
+    } else if(x + 10 > width) {
+      //right world boundary
+      this.socket.emit('update', {'update': 'realmRight'}, () => {
+        console.log("Moving to right realm...")
+      });
+    } else if(y - 15 < 0) {
+      //top world boundary
+      this.socket.emit('update', {'update': 'realmUp'}, () => {
+        console.log("Moving to top realm...")
+      });
+    } else if(y + 15 > height) {
+      //bottom world boundary
+      this.socket.emit('update', {'update': 'realmDown'}, () => {
+        console.log("Moving to bottom realm...")
+      });
     }
   }
   /*
