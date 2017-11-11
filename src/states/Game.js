@@ -240,6 +240,10 @@ export default class extends Phaser.State {
     this.controls.left.isDown ? this.player.body.moveLeft(200) : null
     this.controls.right.isDown ? this.player.body.moveRight(200) : null
 
+    if(this.controls.left.isDown || this.controls.right.isDown || this.controls.up.isDown || this.controls.down.isDown) {
+      this.socket.emit('update', {'move': {x: this.player.position.x, y: this.player.position.y}});
+    }
+
     if(!this.controls.left.isDown && !this.controls.right.isDown && !this.controls.up.isDown && !this.controls.down.isDown) {
       this.player.animations.play(this.player.prevAnimation);
     }

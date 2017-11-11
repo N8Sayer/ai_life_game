@@ -11,7 +11,7 @@ import io from 'socket.io-client';
 
 export const loadRealm = (state) => {
 
-  return axios.post('http://127.0.0.1:5000/api/v1/game/state').then((res) => {
+  return axios.post('http://127.0.0.1:5000/api/v1/game/state', {token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YTA2MGVhZmM4OGE5MDNjOTgzN2RlZTQiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNTEwMzQ2NDE1fQ.LVGQPM95XRao8owUUzXvRmgB6MeXPyeBmvbRwEvIiJY'}).then((res) => {
 
     console.log(res.data);
 
