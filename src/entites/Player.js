@@ -18,6 +18,7 @@ export default class Player extends Phaser.Sprite {
     this.animations.add('warrior_running_right', [1, 2, 3, 4, 5, 6], 14, true);
     this.animations.add('warrior_running_left', [10, 11, 12, 13, 14, 15], 14, true);
     this.prevAnimation = 'warrior_idle_left';
+    this.prevPosition = {};
     this.scale.setTo(1.2, 1.2);
   }
 }

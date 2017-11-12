@@ -11,13 +11,13 @@ import io from 'socket.io-client';
 
 export const loadRealm = (state) => {
 
-  return axios.post('http://127.0.0.1:5000/api/v1/game/state', {token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YTA2MGVhZmM4OGE5MDNjOTgzN2RlZTQiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNTEwMzQ2NDE1fQ.LVGQPM95XRao8owUUzXvRmgB6MeXPyeBmvbRwEvIiJY'}).then((res) => {
+  return axios.post('http://192.168.1.23:5000/api/v1/game/state').then((res) => {
 
     console.log(res.data);
 
     if(!res.data.background) {
-      window.location.href = 'http://127.0.0.1:5000' + res.data;
-      Promise.reject();
+      window.location.href = 'http://192.168.1.23:5000' + res.data;
+      return Promise.reject();
     } else {
 
       var background = res.data.background;
@@ -66,7 +66,7 @@ export const loadRealm = (state) => {
 
       state.isLoading = false;
 
-      Promise.resolve();
+      return Promise.resolve();
     }
 
   }).catch((err) => {
@@ -83,6 +83,6 @@ export const loadRealm = (state) => {
 
     state.isLoading = false;
 
-    Promise.reject();
+    return Promise.reject();
   });
 };

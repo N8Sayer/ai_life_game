@@ -45,14 +45,14 @@ export default class extends Phaser.State {
     this.createGUI();
 
     loadRealm(this).then(() => {
-      this.socket = io('http://127.0.0.1:5000');
+      this.socket = io('http://192.168.1.23:5000');
 
       this.socket.on('connect', function(data) {
-        console.log(data);
+        console.log("IO Connection Made: " + data);
       });
 
       this.socket.on('disconnect', function(data) {
-        console.log(data);
+        console.log("IO Connection Lost: " + data);
       });
 
       this.socket.on('update', function() {
@@ -240,9 +240,11 @@ export default class extends Phaser.State {
     this.controls.left.isDown ? this.player.body.moveLeft(200) : null
     this.controls.right.isDown ? this.player.body.moveRight(200) : null
 
-    if(this.controls.left.isDown || this.controls.right.isDown || this.controls.up.isDown || this.controls.down.isDown) {
+    if(this.player.prevPosition.x != this.player.position.x || this.player.prevPosition.y != this.player.position.y) {
       this.socket.emit('update', {'move': {x: this.player.position.x, y: this.player.position.y}});
     }
+
+    this.player.prevPosition = this.player.position;
 
     if(!this.controls.left.isDown && !this.controls.right.isDown && !this.controls.up.isDown && !this.controls.down.isDown) {
       this.player.animations.play(this.player.prevAnimation);
